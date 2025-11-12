@@ -34,5 +34,4 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: true
-          platforms: linux/arm64
-          tags: ghcr.io/${{ env.GHCR_NAMESPACE }}/ros2-workspace:latestest
+          tags: ghcr.io/${{ env.GHCR_NAMESPACE }}/ros2_ws:latest
