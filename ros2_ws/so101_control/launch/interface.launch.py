@@ -1,80 +1,109 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, Command, PathSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
+from launch.event_handlers import OnProcessExit
 
 
 def generate_launch_description():
+
+    use_rviz_arg = DeclareLaunchArgument(
+        "use_rviz", default_value="false", description="Show robot description"
+    )
+    description_arg = DeclareLaunchArgument(
+        "description", default_value="so101.urdf.xacro"
+    )
+    rviz_config_arg = DeclareLaunchArgument("rviz_config", default_value="so101.rviz")
+    controller_config_arg = DeclareLaunchArgument(
+        "controller_config", default_value="so101.yaml"
+    )
+    robot_description = ParameterValue(
+        Command(
+            [
+                "xacro ",
+                PathSubstitution(FindPackageShare("so101_control"))
+                / "config"
+                / LaunchConfiguration("description"),
+            ]
+        )
+    )
+
+    robot_state_publisher_node = Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        parameters=[
+            {
+                "robot_description": robot_description,
+            }
+        ],
+    )
+
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        output="screen",
+        arguments=[
+            "-d",
+            PathSubstitution(FindPackageShare("so101_description"))
+            / "config"
+            / LaunchConfiguration("rviz_config"),
+        ],
+        condition=IfCondition(LaunchConfiguration("use_rviz")),
+    )
+
+    ros2_control_node = Node(
+        package="controller_manager",
+        executable="ros2_control_node",
+        name="controller_manager",
+        parameters=[
+            PathSubstitution(FindPackageShare("so101_control"))
+            / "config"
+            / LaunchConfiguration("controller_config")
+        ],
+        remappings=[("~/robot_description", "/robot_description")],
+        output="screen",
+    )
+
+    joint_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "joint_state_broadcaster",
+            "--controller-manager",
+            "/controller_manager",
+        ],
+    )
+
+    robot_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "arm_controller",
+            "--controller-manager",
+            "/controller_manager",
+        ],
+    )
+
+    delay_robot_controller_spawner = RegisterEventHandler(
+        event_handler=OnProcessExit(
+            target_action=joint_state_broadcaster_spawner,
+            on_exit=[robot_controller_spawner],
+        )
+    )
+
     return LaunchDescription(
         [
-            DeclareLaunchArgument(
-                "use_rviz", default_value="true", description="Show robot description"
-            ),
-            DeclareLaunchArgument("description", default_value="so101.urdf.xacro"),
-            DeclareLaunchArgument("rviz_config", default_value="so101.rviz"),
-            DeclareLaunchArgument("controller_config", default_value="so101.yaml"),
-            Node(
-                package="robot_state_publisher",
-                executable="robot_state_publisher",
-                parameters=[
-                    {
-                        "robot_description": ParameterValue(
-                            Command(
-                                (
-                                    "xacro",
-                                    " ",
-                                    PathSubstitution(FindPackageShare("so101_control"))
-                                    / "config"
-                                    / LaunchConfiguration("description"),
-                                )
-                            ),
-                            value_type=str,
-                        ),
-                    }
-                ],
-            ),
-            Node(
-                package="rviz2",
-                executable="rviz2",
-                output="screen",
-                arguments=[
-                    "-d",
-                    PathSubstitution(FindPackageShare("so101_description"))
-                    / "config"
-                    / LaunchConfiguration("rviz_config"),
-                ],
-                condition=IfCondition(LaunchConfiguration("use_rviz")),
-            ),
-            Node(
-                package="controller_manager",
-                executable="ros2_control_node",
-                parameters=[
-                    PathSubstitution(FindPackageShare("so101_control"))
-                    / "config"
-                    / LaunchConfiguration("controller_config")
-                ],
-                output="screen",
-            ),
-            Node(
-                package="controller_manager",
-                executable="spawner",
-                arguments=[
-                    "joint_state_broadcaster",
-                    "--controller-manager",
-                    "/controller_manager",
-                ],
-            ),
-            Node(
-                package="controller_manager",
-                executable="spawner",
-                arguments=[
-                    "arm_hardware",
-                    "--controller-manager",
-                    "/controller_manager",
-                ],
-            ),
+            use_rviz_arg,
+            description_arg,
+            rviz_config_arg,
+            controller_config_arg,
+            robot_state_publisher_node,
+            rviz_node,
+            ros2_control_node,
+            joint_state_broadcaster_spawner,
+            delay_robot_controller_spawner,
         ]
     )

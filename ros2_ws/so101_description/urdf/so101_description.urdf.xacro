@@ -274,7 +274,6 @@
         <mesh filename="package://so101_description/urdf/assets/sts3215_03a_v1.stl"/>
       </geometry>
     </collision>
-    <!-- Part wrist_roll_follower_so101_v1 -->
     <visual>
       <origin xyz="8.32667e-17 -0.000218214 0.000949706" rpy="-3.14159 -5.55112e-17 0"/>
       <geometry>
@@ -290,7 +289,6 @@
     </collision>
   </link>
 
-  <!-- Gripper frame (dummy link + fixed joint) -->
   <link name="gripper_frame_link">
     <origin xyz="0 0 0" rpy="0 -0 0"/>
     <inertial>
@@ -307,14 +305,12 @@
     <axis xyz="0 0 0"/>
   </joint>
 
-  <!-- Link moving_jaw_so101_v1 -->
   <link name="moving_jaw_so101_v1_link">
     <inertial>
       <origin xyz="-0.00157495 -0.0300244 0.0192755" rpy="0 0 0"/>
       <mass value="0.012"/>
       <inertia ixx="6.61427e-06" ixy="-3.19807e-07" ixz="-5.90717e-09" iyy="1.89032e-06" iyz="-1.09945e-07" izz="5.28738e-06"/>
     </inertial>
-    <!-- Part moving_jaw_so101_v1 -->
     <visual>
       <origin xyz="-5.55112e-17 -5.55112e-17 0.0189" rpy="9.53145e-17 6.93889e-18 1.24077e-24"/>
       <geometry>
@@ -330,7 +326,6 @@
     </collision>
   </link>
 
-  <!-- Joint from gripper to moving_jaw_so101_v1 -->
   <joint name="gripper" type="revolute">
     <origin xyz="0.0202 0.0188 -0.0234" rpy="1.5708 -5.24284e-08 -1.41553e-15"/>
     <parent link="gripper_link"/>
@@ -390,8 +385,6 @@
     </actuator>
   </transmission>
 
-  <!-- Joint from upper_arm to lower_arm -->
-  <!-- Note: 5-degree calibration offset applied to joint limits -->
   <joint name="elbow_flex" type="revolute">
     <origin xyz="-0.11257 -0.028 1.73763e-16" rpy="-3.63608e-16 8.74301e-16 1.5708"/>
     <parent link="upper_arm_link"/>
@@ -411,7 +404,6 @@
     </actuator>
   </transmission>
 
-  <!-- Joint from shoulder to upper_arm -->
   <joint name="shoulder_lift" type="revolute">
     <origin xyz="-0.0303992 -0.0182778 -0.0542" rpy="-1.5708 -1.5708 0"/>
     <parent link="shoulder_link"/>
@@ -431,7 +423,6 @@
     </actuator>
   </transmission>
 
-  <!-- Joint from base to shoulder -->
   <joint name="shoulder_pan" type="revolute">
     <origin xyz="0.0388353 -8.97657e-09 0.0624" rpy="3.14159 4.18253e-17 -3.14159"/>
     <parent link="base_link"/>
