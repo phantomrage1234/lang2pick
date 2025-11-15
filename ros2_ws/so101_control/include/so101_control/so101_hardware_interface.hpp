@@ -1,7 +1,8 @@
 #ifndef SO101_HARDWARE_INTERFACE_HPP
 #define SO101_HARDWARE_INTERFACE_HPP
 
-#include "driver/SMS_STS.h"
+#include "SMS_STS.h"
+#include <cmath>
 #include <string>
 #include <vector>
 
@@ -10,18 +11,19 @@
 #include "hardware_interface/system_interface.hpp"
 #include "hardware_interface/types/hardware_interface_return_values.hpp"
 #include "rclcpp/macros.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
+
+#include "pluginlib/class_list_macros.hpp"
 
 using hardware_interface::CallbackReturn;
 
 namespace so101_control {
 
 struct Servo {
-  Servo(int servo_id)
-      : id(servo_id), position(0.0), velocity(0.0), effort(0.0),
-        temperature(0.0), voltage(0.0), error_code(0.0), cmd_position(0.0),
-        cmd_velocity(0.0), cmd_effort(0.0) {}
+  Servo() = default;
+  Servo(int servo_id) : id(servo_id) {}
   int id;
   double position_offset;
 
@@ -44,6 +46,7 @@ private:
   std::vector<Servo> servos_;
   int baud_rate_ = 115200;
   int num_joints_ = 0;
+  int steps_per_rev_ = 4096;
   CallbackReturn update_hardware_status(int i);
 
 public:
@@ -51,13 +54,17 @@ public:
 
   // Lifecycle methods
   CallbackReturn
-  on_configure(const hardware_interface::HardwareInfo &info) override;
-  CallbackReturn on_activate(const hardware_interface::HardwareInfo &info);
-  CallbackReturn on_deactivate(const hardware_interface::HardwareInfo &info);
-  CallbackReturn on_cleanup(const hardware_interface::HardwareInfo &info);
-  CallbackReturn on_shutdown(const hardware_interface::HardwareInfo &info);
-  CallbackReturn on_error(const hardware_interface::HardwareInfo &info);
-
+  on_configure(const rclcpp_lifecycle::State &previous_state) override;
+  CallbackReturn
+  on_activate(const rclcpp_lifecycle::State &previous_state) override;
+  CallbackReturn
+  on_deactivate(const rclcpp_lifecycle::State &previous_state) override;
+  CallbackReturn
+  on_cleanup(const rclcpp_lifecycle::State &previous_state) override;
+  CallbackReturn
+  on_shutdown(const rclcpp_lifecycle::State &previous_state) override;
+  CallbackReturn
+  on_error(const rclcpp_lifecycle::State &previous_state) override;
   // Export interfaces
   CallbackReturn
   on_init(const hardware_interface::HardwareInfo &params) override;
