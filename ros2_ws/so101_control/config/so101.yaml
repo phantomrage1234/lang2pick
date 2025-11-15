@@ -9,7 +9,7 @@ controller_manager:
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
-    joint_trajectory_controller:
+    joint_trajectory_position_controller:
       type: joint_trajectory_controller/JointTrajectoryController
       joints:
         - joint1
