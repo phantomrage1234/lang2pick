@@ -2,7 +2,6 @@
 
 so101_control::so101_hardware_interface::so101_hardware_interface()
 {
-  // Constructor implementation (if needed)
 }
 
 hardware_interface::CallbackReturn
@@ -13,15 +12,19 @@ so101_control::so101_hardware_interface::on_init(const hardware_interface::Hardw
     return hardware_interface::CallbackReturn::ERROR;
   }
   auto it = params.hardware_parameters.find("usb_port");
-  if (it != params.hardware_parameters.end())
+  if (it == params.hardware_parameters.end())
   {
-    usb_port_ = it->second;
+    RCLCPP_FATAL(rclcpp::get_logger("so101_hardware_interface"), "USB port not specified in hardware parameters.");
+    return hardware_interface::CallbackReturn::ERROR;
   }
+  usb_port_ = it->second;
   auto baud_it = params.hardware_parameters.find("baud_rate");
-  if (baud_it != params.hardware_parameters.end())
+  if (baud_it == params.hardware_parameters.end())
   {
-    baud_rate_ = std::stoi(baud_it->second);
+    RCLCPP_FATAL(rclcpp::get_logger("so101_hardware_interface"), "Baud rate not specified in hardware parameters.");
+    return hardware_interface::CallbackReturn::ERROR;
   }
+  baud_rate_ = std::stoi(baud_it->second);
   num_joints_ = params.joints.size();
   servos_.resize(num_joints_);
   RCLCPP_INFO(rclcpp::get_logger("so101_hardware_interface"), "Initializing hardware interface for %d joints.",
@@ -80,7 +83,15 @@ so101_control::so101_hardware_interface::on_init(const hardware_interface::Hardw
       }
       command_interface_names.insert(command_interface.name);
     }
-    servos_[i] = so101_control::Servo(i + 1);
+    auto id_it = params.joints[i].parameters.find("id");
+    if (id_it == params.joints[i].parameters.end())
+    {
+      RCLCPP_FATAL(rclcpp::get_logger("so101_hardware_interface"), "Joint %s is missing parameter 'id'.",
+                   params.joints[i].name.c_str());
+      return hardware_interface::CallbackReturn::ERROR;
+    }
+    int id = std::stoi(params.joints[i].parameters.at("id"));
+    servos_[i] = so101_control::Servo(id);
     auto offset_it = params.joints[i].parameters.find("position_offset");
     if (offset_it != params.joints[i].parameters.end())
     {
