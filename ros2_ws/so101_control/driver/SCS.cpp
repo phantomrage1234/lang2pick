@@ -209,18 +209,15 @@ int SCS::Read(u8 ID, u8 MemAddr, u8* nData, u8 nLen)
     //}
     if (bBuf[0] != 0xff || bBuf[1] != 0xff)
     {
-      std::cerr << "Exception in Read: Invalid header bytes" << std::endl;
       return 0;
     }
     for (i = 2; i < (Size - 1); i++)
     {
-      std::cerr << "Exception in Read: Invalid checksum" << std::endl;
       calSum += bBuf[i];
     }
     calSum = ~calSum;
     if (calSum != bBuf[Size - 1])
     {
-      std::cerr << "Exception in Read: Checksum mismatch" << std::endl;
       return 0;
     }
     memcpy(nData, bBuf + 5, nLen);
@@ -229,7 +226,6 @@ int SCS::Read(u8 ID, u8 MemAddr, u8* nData, u8 nLen)
   }
   catch (std::exception& e)
   {
-    std::cerr << "Exception in Read: " << e.what() << std::endl;
     return 0;
   }
 }

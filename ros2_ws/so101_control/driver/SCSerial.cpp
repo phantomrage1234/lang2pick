@@ -149,7 +149,6 @@ int SCSerial::readSCS(unsigned char* nDat, int nLen)
     try
     {
       fs_sel = select(fd + 1, &fs_read, NULL, NULL, &time);
-      std::cout << "fs_sel: " << fs_sel << std::endl;
       if (fs_sel)
       {
         rvLen += read(fd, nDat + rvLen, nLen - rvLen);

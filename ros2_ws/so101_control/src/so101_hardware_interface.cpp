@@ -188,6 +188,19 @@ so101_control::so101_hardware_interface::on_deactivate(const rclcpp_lifecycle::S
   return hardware_interface::CallbackReturn::SUCCESS;
 }
 
+hardware_interface::CallbackReturn
+so101_control::so101_hardware_interface::on_shutdown(const rclcpp_lifecycle::State& /*previous_state*/)
+{
+  RCLCPP_INFO(rclcpp::get_logger("so101_hardware_interface"), "Shutting down...");
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
+
+hardware_interface::CallbackReturn
+so101_control::so101_hardware_interface::on_error(const rclcpp_lifecycle::State& /*previous_state*/)
+{
+  RCLCPP_INFO(rclcpp::get_logger("so101_hardware_interface"), "Error...");
+  return hardware_interface::CallbackReturn::SUCCESS;
+}
 std::vector<hardware_interface::StateInterface> so101_control::so101_hardware_interface::export_state_interfaces()
 {
   std::vector<hardware_interface::StateInterface> state_interfaces;
