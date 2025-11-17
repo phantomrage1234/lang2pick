@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 100
+    update_rate: 10
     use_sim_time: false
 
     joint_state_broadcaster:
@@ -8,23 +8,22 @@ controller_manager:
 
     arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
-      joints:
-        - shoulder_pan
-        - shoulder_lift
-        - elbow_flex
-        - wrist_flex
-        - wrist_roll
-        - gripper
-      command_interfaces:
-        - position
-      state_interfaces:
-        - position
-        - velocity
-      gains:
-        shoulder_pan: { p: 100.0, d: 0.1, i: 0.0 }
-        shoulder_lift: { p: 100.0, d: 0.1, i: 0.0 }
-        elbow_flex: { p: 100.0, d: 0.1, i: 0.0 }
-        wrist_flex: { p: 100.0, d: 0.1, i: 0.0 }
-        wrist_roll: { p: 100.0, d: 0.1, i: 0.0 }
-        gripper: { p: 100.0, d: 0.1, i: 0.0 }
-      state_publish_rate: 50
+
+arm_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pan
+      - shoulder_lift
+      - elbow_flex
+      - wrist_flex
+      - wrist_roll
+      - gripper
+
+    command_interfaces:
+      - position
+
+    state_interfaces:
+      - position
+      - velocity
+
+    allow_nonzero_velocity_at_trajectory_end: false

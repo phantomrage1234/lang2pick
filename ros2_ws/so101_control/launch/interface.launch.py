@@ -11,7 +11,7 @@ from launch.event_handlers import OnProcessExit
 def generate_launch_description():
 
     use_rviz_arg = DeclareLaunchArgument(
-        "use_rviz", default_value="false", description="Show robot description"
+        "use_rviz", default_value="true", description="Show robot description"
     )
     description_arg = DeclareLaunchArgument(
         "description", default_value="so101.urdf.xacro"
@@ -57,19 +57,19 @@ def generate_launch_description():
     ros2_control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        name="controller_manager",
         parameters=[
             PathSubstitution(FindPackageShare("so101_control"))
             / "config"
             / LaunchConfiguration("controller_config")
         ],
         remappings=[("~/robot_description", "/robot_description")],
-        output="screen",
+        output="both",
     )
 
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
+        name="joint_state_broadcaster",
         arguments=[
             "joint_state_broadcaster",
             "--controller-manager",
@@ -80,6 +80,7 @@ def generate_launch_description():
     robot_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
+        name="arm_controller",
         arguments=[
             "arm_controller",
             "--controller-manager",
