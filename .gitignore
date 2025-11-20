@@ -54,3 +54,6 @@ CATKIN_IGNORE
 __pycache__/
 *.py[cod]
 *$py.class
+
+node_modules/
+package-lock.json
